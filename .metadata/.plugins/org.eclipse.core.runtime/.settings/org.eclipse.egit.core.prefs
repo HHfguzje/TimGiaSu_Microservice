@@ -1,4 +1,4 @@
-GitRepositoriesView.GitDirectories=C\:\\Users\\hoang\\Desktop\\LookingForATutor\\.git;
-GitRepositoriesView.GitDirectories.relative=.git;
+GitRepositoriesView.GitDirectories=/home/hoang/Desktop/WorkSpace/TimGiaSu_Microservice/.git\:/home/hoang/Desktop/WorkSpace/TimGiaSu_Microservice/.git;\:
+GitRepositoriesView.GitDirectories.relative=.git\:.git;\:
 core_autoIgnoreDerivedResources=false
 eclipse.preferences.version=1
