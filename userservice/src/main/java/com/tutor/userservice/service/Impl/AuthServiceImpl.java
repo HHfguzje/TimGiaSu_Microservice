@@ -11,6 +11,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.tutor.userservice.dto.request.ChangePasswordRequest;
+import com.tutor.userservice.dto.request.EditProfile;
 import com.tutor.userservice.dto.request.SignInRequest;
 import com.tutor.userservice.dto.request.SignUpRequest;
 import com.tutor.userservice.dto.response.JwtReponse;
@@ -19,6 +21,8 @@ import com.tutor.userservice.entities.User;
 import com.tutor.userservice.repository.UserRepository;
 import com.tutor.userservice.service.AuthService;
 import com.tutor.userservice.service.JwtService;
+
+import jakarta.ws.rs.NotFoundException;
 
 @Service
 public class AuthServiceImpl implements AuthService{
@@ -102,4 +106,37 @@ public class AuthServiceImpl implements AuthService{
 		
 		return jwtReponse;
 	}
+
+	@Override
+	public User editProfile(EditProfile editProfile) {
+		// TODO Auto-generated method stub
+		User user = userRepository.findByUsername(editProfile.getUsername()).orElseThrow(()-> new NotFoundException("Tên đăng nhập không tồn tại"));
+		user.setAddress(editProfile.getAddress());
+		user.setFullName(editProfile.getFullName());
+		user.setNumber(editProfile.getAddress());
+		return userRepository.save(user);
+	}
+
+	@Override
+	public User changePassword(ChangePasswordRequest changePasswordRequest) {
+		// TODO Auto-generated method stub
+		User user = userRepository.findByUsername(changePasswordRequest.getUsername()).orElseThrow(()-> new NotFoundException("Tên đăng nhập không tồn tại"));
+		if (passwordEncoder.matches(changePasswordRequest.getOldPassword(), user.getPassword())) {
+			if (changePasswordRequest.getNewPassword().equals(changePasswordRequest.getConfirmNewPassword())) {
+				user.setPassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
+			     userRepository.save(user);
+			}
+		}
+		return user;
+	}
+
+	@Override
+	public User getUserByUsername(String username) {
+		// TODO Auto-generated method stub
+		User user = userRepository.findByUsername(username)
+				.orElseThrow(()-> new NotFoundException("tên đăng nhập không tồn tại"));
+		return user;
+	}
+	
+	
 }

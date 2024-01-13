@@ -16,6 +16,9 @@ import com.tutor.userservice.dto.response.JwtReponse;
 import com.tutor.userservice.entities.User;
 import com.tutor.userservice.repository.UserRepository;
 import com.tutor.userservice.service.AuthService;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
 
 @RestController
 @RequestMapping("/api/auth")
@@ -47,4 +50,5 @@ public class AuthController {
 		// Trả về ResponseEntity với thông điệp
 		return ResponseEntity.ok(userRepository.save(user));
 	}
+
 }
