@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.tutor.userservice.dto.request.ChangePasswordRequest;
 import com.tutor.userservice.dto.request.EditProfile;
+import com.tutor.userservice.dto.response.SystemResponse;
 import com.tutor.userservice.entities.User;
 import com.tutor.userservice.repository.UserRepository;
 import com.tutor.userservice.service.AuthService;
@@ -31,12 +32,12 @@ public class UserController {
 	}
 	
 	@PutMapping("/edit-profile")
-	public ResponseEntity<User> updateProfile(@RequestBody EditProfile editProfile){
+	public ResponseEntity<SystemResponse> updateProfile(@RequestBody EditProfile editProfile){
 		return ResponseEntity.ok(service.editProfile(editProfile));
 	}
 	
 	@PutMapping("/change-password")
-	public ResponseEntity<User> changePassword(@RequestBody ChangePasswordRequest changePasswordRequest){
+	public ResponseEntity<SystemResponse> changePassword(@RequestBody ChangePasswordRequest changePasswordRequest){
 		return ResponseEntity.ok(service.changePassword(changePasswordRequest));
 	}
 	

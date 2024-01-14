@@ -37,7 +37,7 @@ public class SecurityConfiguration {
 		http.csrf(AbstractHttpConfigurer::disable)
 				.authorizeHttpRequests(r -> r.requestMatchers("/api/auth/**").permitAll()
 						.requestMatchers("/api/admin/**").hasAnyAuthority(Role.ROLE_ADMIN.name())
-						.requestMatchers("/user/**").hasAnyAuthority(Role.ROLE_STUDENT.name(), Role.ROLE_TUTOR.name(), Role.ROLE_ADMIN.name())
+						.requestMatchers("/api/user/**").hasAnyAuthority(Role.ROLE_STUDENT.name(), Role.ROLE_TUTOR.name(), Role.ROLE_ADMIN.name())
 						.requestMatchers("/**").permitAll()
 						.anyRequest().authenticated())
 				.sessionManagement(manager-> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
