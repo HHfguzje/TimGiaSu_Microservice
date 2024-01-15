@@ -4,11 +4,13 @@ import java.security.Key;
 import java.util.Map;
 
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
 
 import com.google.common.base.Function;
 
 import io.jsonwebtoken.Claims;
 
+@Service
 public interface JwtService {
 	String generateToken(UserDetails userDetails);
 	String extractUsername (String token);

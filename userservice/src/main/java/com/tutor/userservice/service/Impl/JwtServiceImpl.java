@@ -31,8 +31,13 @@ public class JwtServiceImpl implements JwtService {
 	// lấy username từ token
 	@Override
 	public String extractUsername(String token) {
-		// TODO Auto-generated method stub
-		return extractClaim(token, Claims::getSubject);
+	    try {
+	        return extractClaim(token, Claims::getSubject);
+	    } catch (Exception e) {
+	        // Ghi log hoặc xử lý ngoại lệ, ví dụ: in ra đám cháy
+	        e.printStackTrace();
+	        return null;
+	    }
 	}
 
 	// Kiểm tra token hợp lệ

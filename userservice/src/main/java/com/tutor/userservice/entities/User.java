@@ -36,13 +36,21 @@ public class User implements UserDetails {
 	private String email;
 	private String number;
 	private Role role;
-	
+	private String timeExpirationToken;
 	@Column(name = "verification_token")
 	private String verificationToken;
 
 	@Column(name = "is_verified")
 	private boolean isVerified;
-	
+
+	public String getTimeExpirationToken() {
+		return timeExpirationToken;
+	}
+
+	public void setTimeExpirationToken(String timeExpirationToken) {
+		this.timeExpirationToken = timeExpirationToken;
+	}
+
 	public String getVerificationToken() {
 		return verificationToken;
 	}

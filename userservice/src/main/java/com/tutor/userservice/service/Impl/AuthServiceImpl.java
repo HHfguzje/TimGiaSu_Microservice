@@ -1,5 +1,9 @@
 package com.tutor.userservice.service.Impl;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -55,6 +59,10 @@ public class AuthServiceImpl implements AuthService {
 			user.setAddress(registerRequest.getAddress());
 			// Tạo mã thông báo xác nhận
 			String verificationToken = UUID.randomUUID().toString();
+		    DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		    Date date = new Date(System.currentTimeMillis() + 10000 * 60 * 10);
+		    String expirationDate = dateFormat.format(date);
+		    user.setTimeExpirationToken(expirationDate);
 			user.setVerificationToken(verificationToken);
 			user.setEmail(registerRequest.getEmail());
 			user.setNumber(registerRequest.getNumber());
@@ -86,13 +94,17 @@ public class AuthServiceImpl implements AuthService {
 		User user = userRepository.findByEmail(accountVerificationRequest.getEmail())
 				.orElseThrow(() -> new NotFoundException("Email chưa được đăng kí"));
 		SystemResponse systemResponse = new SystemResponse();
+		systemResponse.setTittle("Thông báo");
+
 		if (user.getVerificationToken().equals(accountVerificationRequest.getToken())) {
-			user.setVerified(true);
-			userRepository.save(user);
-			systemResponse.setTittle("Thông báo");
-			systemResponse.setMessage("Tài khoản đã được xác nhận thành công");
+			if (convertStringToDate(user.getTimeExpirationToken()).before(new Date())) {
+				user.setVerified(true);
+				userRepository.save(user);
+				systemResponse.setMessage("Tài khoản đã được xác nhận thành công");
+			} else {
+				systemResponse.setMessage("Mã xác nhận đã hết hạn, vui lòng bấm gửi lại mã mới");
+			}
 		} else {
-			systemResponse.setTittle("Thông báo");
 			systemResponse.setMessage("Xác nhận tài khoản không thành công, mã xác nhận không đúng");
 		}
 
@@ -184,11 +196,11 @@ public class AuthServiceImpl implements AuthService {
 		User user = userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Email không tồn tại"));
 		SystemResponse systemResponse = new SystemResponse();
 		String verificationToken = UUID.randomUUID().toString();
-
-		String subject = "Quên mật khẩu";
-		String body = "Chào " + user.getFullName() + ",\n\n" + "Mã xác nhận reset mật khẩu của bạn là:\n"
-				+ verificationToken;
+	    DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+	    Date date = new Date(System.currentTimeMillis() + 10000 * 60 * 10);
+	    String expirationDate = dateFormat.format(date);
 		user.setVerificationToken(verificationToken);
+		user.setTimeExpirationToken(expirationDate);
 		userRepository.save(user);
 		resetPasswordToken(user);
 		systemResponse.setTittle("Thông báo hệ thống");
@@ -202,7 +214,7 @@ public class AuthServiceImpl implements AuthService {
 		String body = "Chào " + user.getFullName() + ":\n"
 				+ "Bạn nhận được email này vì bạn đã yêu cầu đặt lại mật khẩu. Đây là mã đặt lại mật khẩu của bạn:\n"
 				+ user.getVerificationToken();
-
+		
 		SimpleMailMessage message = new SimpleMailMessage();
 		message.setTo(user.getEmail());
 		message.setSubject(subject);
@@ -218,15 +230,32 @@ public class AuthServiceImpl implements AuthService {
 				.orElseThrow(() -> new NotFoundException("Mã xác nhận không hợp lệ"));
 		SystemResponse systemResponse = new SystemResponse();
 		systemResponse.setTittle("Thông báo hệ thống");
-		if (resetPasswordResponse.getPassword().equals(resetPasswordResponse.getConfirmPassword())) {
-			user.setPassword(passwordEncoder.encode(resetPasswordResponse.getPassword()));
-			userRepository.save(user);
-			systemResponse.setMessage("Cập nhật mật khẩu mới thành công");
-		} else {
-			systemResponse.setMessage("Mật khẩu mới không khớp");
-		}
-		
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        
+        if (user.getVerificationToken().equals(resetPasswordResponse.getVerificationToken())) {
+        	if (convertStringToDate(user.getTimeExpirationToken()).before(new Date())) {
+    			if (resetPasswordResponse.getPassword().equals(resetPasswordResponse.getConfirmPassword())) {
+    				user.setPassword(passwordEncoder.encode(resetPasswordResponse.getPassword()));
+    				userRepository.save(user);
+    				systemResponse.setMessage("Cập nhật mật khẩu mới thành công");
+    			} else {
+    				systemResponse.setMessage("Mật khẩu mới không khớp"); 
+    			}
+    		} else {
+    			systemResponse.setMessage("Mã xác nhận của bạn đã hết hạn, vui lòng tạo lại mã mới");
+    		}
+        } else systemResponse.setMessage("Mã xác nhận không đúng");
 		return systemResponse;
 	}
+	
+	public static Date convertStringToDate(String dateString) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        try {
+            return dateFormat.parse(dateString);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
 }
